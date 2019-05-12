@@ -230,7 +230,6 @@ struct Pair
 
 int main()
 {
-	
 	vector <FlightDetails> flights;
 	read_FlightDetails(flights);
 
@@ -245,18 +244,16 @@ int main()
 		merge[airport.TRACK_ID].airport = airport;
 
 	for (map<string, Pair>::const_iterator it = merge.begin(); it != merge.end(); ++it)
-	{
 		it->second.print();
-	}
 	
-	print_structs(flights, airports);
 	write_in_file(flights, airports, "D:/merge.txt");			//Task 3
 	update_struct(airports);
 	write_in_file(flights, airports, "D:/merge2.txt");
-	print_structs(flights, airports);
 
-	for (map<string, Pair>::const_iterator it = merge.begin(); it != merge.end(); ++it)
+	/*for (map<string, Pair>::const_iterator it = merge.begin(); it != merge.end(); ++it)
 	{
 		std::cout << it->second.flight.copy_count << std::endl;
-	}
+		
+	}*/
+
 }
