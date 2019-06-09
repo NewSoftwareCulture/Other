@@ -108,12 +108,9 @@ struct AirportDetails
 
 };
 
-string tabulation(string str)
+string tabulation(const string& str)
 {
-	if (str.size() < 7)
-		return "\t\t";
-	else
-		return "\t";
+	return str.size() < 7 ? "\t\t" : "\t";
 }
 
 void print_structs(const vector<FlightDetails>& flights, const vector<AirportDetails>& airport)
