@@ -8,13 +8,9 @@
 
 using namespace std;
 
-vector<string> split(const string& text, bool flag = false)			// x - word sequence number, flag - character switch
+vector<string> split(const string& text, char ch)
 {
-	char ch = ' ';
-	if (flag) ch = '\t';
-
 	vector<string> words_in_text;
-
 	for (int i = 0; i < text.size() - 1; i++)
 	{
 		if (i == 0 || (text[i] == ch && text[i + 1] != ch))
@@ -56,7 +52,7 @@ struct FlightDetails
 
 	static FlightDetails from_string(const string& text)
 	{
-		vector<string> words_in_text = split(text);
+		vector<string> words_in_text = split(text, ' ');
 		string track_id = words_in_text[0];
 		string destination = words_in_text[1];
 		string departure = words_in_text[2];
@@ -101,7 +97,7 @@ struct AirportDetails
 
 	static AirportDetails from_string(const string& text)
 	{
-		vector<string> words_in_text = split(text);
+		vector<string> words_in_text = split(text, ' ');
 		string runway = words_in_text[0];
 		int speed = atoi(words_in_text[1].c_str());
 		int x_coordinate = atoi(words_in_text[2].c_str());
