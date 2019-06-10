@@ -169,6 +169,15 @@ void read_AirportDetails(vector <AirportDetails>& airport)
 	file.close();
 }
 
+void combination_structs(const vector <FlightDetails>& flights, const vector <AirportDetails>& airports, map <string, Pair>& merge)
+{
+	for (const FlightDetails& flight : flights)
+		merge[flight.track_id].flight = flight;
+
+	for (const AirportDetails& airport : airports)
+		merge[airport.track_id].airport = airport;
+}
+
 void print_struct(const map <string, Pair>& merge)
 {
 	for (map<string, Pair>::const_iterator it = merge.begin(); it != merge.end(); ++it)
@@ -186,19 +195,14 @@ void write_in_file(const map <string, Pair>& merge)
 int main()
 {
 	vector <FlightDetails> flights;
-	read_FlightDetails(flights);
-
 	vector <AirportDetails> airports;
-	read_AirportDetails(airports);
-	update_struct(airports);
-
 	map <string, Pair> merge;
-	for (FlightDetails flight : flights)
-		merge[flight.track_id].flight = flight;
-	
-	for (AirportDetails airport : airports)
-		merge[airport.track_id].airport = airport;
 
+	read_FlightDetails(flights);
+	read_AirportDetails(airports);
+	
+	update_struct(airports);
+	combination_structs(flights, airports, merge);
 	print_struct(merge);
 	write_in_file(merge);
 }
