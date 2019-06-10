@@ -8,6 +8,8 @@
 
 using namespace std;
 
+const string file_path = "D:/merge.txt";
+
 vector<string> split(const string& text, char ch)
 {
 	vector<string> words_in_text;
@@ -30,6 +32,11 @@ vector<string> split(const string& text, char ch)
 		}
 	}
 	return words_in_text;
+}
+
+string tabulation(const string& str)
+{
+	return str.size() < 7 ? "\t\t" : "\t";
 }
 
 struct FlightDetails
@@ -108,74 +115,33 @@ struct AirportDetails
 
 };
 
-string tabulation(const string& str)
+struct Pair
 {
-	return str.size() < 7 ? "\t\t" : "\t";
-}
-
-void print_structs(const vector<FlightDetails>& flights, const vector<AirportDetails>& airport)
-{
-	cout << endl;
-	for (int i = 0; i < flights.size(); i++)
-		flights[i].print();
-	cout << endl;
-	for (int i = 0; i < airport.size(); i++)
-		airport[i].print();
-}
-
-void handling_mismatches(ofstream &merge, vector<AirportDetails>& airport)
-{
-	for (int i = 0; i < airport.size(); i++)
+	Pair()
 	{
-		if (airport[i].track_id[airport[i].track_id.size() - 1] != '*')
-		{
-			merge << airport[i].track_id << tabulation(airport[i].track_id)
-				<< "XXXX" << "\t\tXXXX" << "\t\tXXXX\t\t"
-				<< airport[i].runway << tabulation(airport[i].runway)
-				<< airport[i].speed << tabulation(to_string(airport[i].speed))
-				<< airport[i].x_coordinate << tabulation(to_string(airport[i].x_coordinate))
-				<< airport[i].y_coordinate << endl;
-		}
+	}
+	FlightDetails flight;
+	AirportDetails airport;
+
+	void print() const
+	{
+		if (flight.track_id != "")
+			cout << flight.track_id << tabulation(flight.track_id);
 		else
-			airport[i].track_id = airport[i].track_id.substr(0, airport[i].track_id.size()-1);
+			cout << airport.track_id << tabulation(airport.track_id);
+		std::cout << " " << flight.destination << tabulation(flight.destination) << flight.departure << tabulation(flight.departure) << flight.flight_altitude << tabulation(to_string(flight.flight_altitude)) << airport.runway << tabulation(airport.runway) << airport.speed << tabulation(to_string(airport.speed)) << airport.x_coordinate << tabulation(to_string(airport.x_coordinate)) << airport.y_coordinate << endl;
 	}
-}
-
-void match_search(ofstream &merge, vector<FlightDetails>& flights, vector<AirportDetails>& airport)
-{
-	for (int i = 0; i < flights.size(); i++)
+	void write_in_file() const
 	{
-		bool match_is_found = false;
-
-		merge	<< flights[i].track_id << tabulation(flights[i].track_id)
-				<< flights[i].destination << tabulation(flights[i].destination)
-				<< flights[i].departure << tabulation(flights[i].departure)
-				<< flights[i].flight_altitude << tabulation(to_string(flights[i].flight_altitude));
-
-		for (int j = 0; j < flights.size(); j++)
-		{
-			if (flights[i].track_id == airport[j].track_id)
-			{
-				merge	<< airport[j].runway << tabulation(airport[j].runway)
-						<< airport[j].speed << tabulation(to_string(airport[j].speed))
-						<< airport[j].x_coordinate << tabulation(to_string(airport[j].x_coordinate))
-						<< airport[j].y_coordinate << endl;
-				airport[j].track_id += "*";
-				match_is_found = true;
-			}
-		}
-		if (!match_is_found)
-			merge << "XXXX" << "\t\tXXXX" << "\t\tXXXX" << "\t\tXXXX" << endl;
+		ofstream file;
+		file.open(file_path, ios::app);
+		if (flight.track_id != "")
+			file << flight.track_id << tabulation(flight.track_id);
+		else
+			file << airport.track_id << tabulation(airport.track_id);
+		file << " " << flight.destination << tabulation(flight.destination) << flight.departure << tabulation(flight.departure) << flight.flight_altitude << tabulation(to_string(flight.flight_altitude)) << airport.runway << tabulation(airport.runway) << airport.speed << tabulation(to_string(airport.speed)) << airport.x_coordinate << tabulation(to_string(airport.x_coordinate)) << airport.y_coordinate << endl;
 	}
-	handling_mismatches(merge, airport);
-}
-
-void write_in_file(vector<FlightDetails>& flights, vector<AirportDetails>& airport, string way)
-{
-	ofstream file(way);
-	match_search(file, flights, airport);
-	file.close();
-}
+};
 
 void update_struct(vector<AirportDetails>& airport)
 {
@@ -203,23 +169,19 @@ void read_AirportDetails(vector <AirportDetails>& airport)
 	file.close();
 }
 
-struct Pair
+void print_struct(const map <string, Pair>& merge)
 {
-	Pair()
-	{
-	}
-	FlightDetails flight;
-	AirportDetails airport;
+	for (map<string, Pair>::const_iterator it = merge.begin(); it != merge.end(); ++it)
+		it->second.print();
+}
 
-	void print() const
-	{
-		if (flight.track_id != "")
-			cout << flight.track_id;
-		else
-			cout << airport.track_id;
-		std::cout << " " << flight.destination << " " << flight.departure << " " << flight.flight_altitude << " " << airport.runway << " " << airport.speed << " " << airport.x_coordinate << " " << airport.y_coordinate << endl;
-	}
-};
+void write_in_file(const map <string, Pair>& merge)
+{
+	ofstream file(file_path);		//clear file
+	file.close();
+	for (map<string, Pair>::const_iterator it = merge.begin(); it != merge.end(); ++it)
+		it->second.write_in_file();
+}
 
 int main()
 {
@@ -228,6 +190,7 @@ int main()
 
 	vector <AirportDetails> airports;
 	read_AirportDetails(airports);
+	update_struct(airports);
 
 	map <string, Pair> merge;
 	for (FlightDetails flight : flights)
@@ -236,17 +199,6 @@ int main()
 	for (AirportDetails airport : airports)
 		merge[airport.track_id].airport = airport;
 
-	for (map<string, Pair>::const_iterator it = merge.begin(); it != merge.end(); ++it)
-		it->second.print();
-	
-	write_in_file(flights, airports, "D:/merge.txt");			//Task 3
-	update_struct(airports);
-	write_in_file(flights, airports, "D:/merge2.txt");
-
-	/*for (map<string, Pair>::const_iterator it = merge.begin(); it != merge.end(); ++it)
-	{
-		std::cout << it->second.flight.copy_count << std::endl;
-		
-	}*/
-
+	print_struct(merge);
+	write_in_file(merge);
 }
